@@ -25,7 +25,8 @@ const timeslotHourWidth = 14;
 
         updateVerticalPosition(){
             var verticalTimeSlotPos = this.controllerElement.getBoundingClientRect().y - this.controllerElement.closest('td').getBoundingClientRect().y;
-            this.element.style.top = Math.floor(verticalTimeSlotPos) + 'px';
+            this.element.style.top = Math.floor(verticalTimeSlotPos) - 2 + 'px';
+            console.log("verticalTimeSlotPos:"+verticalTimeSlotPos);
         }
         isOngoing(){
             if(this.workDayIndex == -1) return false;
@@ -87,6 +88,10 @@ const timeslotHourWidth = 14;
                     this.availableHours[timeslot.startIndex + i] = true;
                 }
                 this.timeslots.splice(timeslotIndex, 1);
+                // update the position of timeslots after removal of a specific timeslot
+                for(let workday of workdays){
+                    workday.timeslots.forEach(timeslot => timeslot.updateVerticalPosition());
+                }
             }
         }
 
