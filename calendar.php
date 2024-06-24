@@ -5,7 +5,7 @@
     #calendar-table table{
     overflow: scroll;
     }
-
+    
     #calendar-table table, #calendar-table th, #calendar-table td {
         border: 1px solid black;
     }
@@ -424,7 +424,7 @@ table#schedule-table {
         currentCell.closest('tr').querySelectorAll('td')[1].appendChild(newTimeslotsControls);
     };
 
-    var allTimeslots =[];
+    var allTimeslots = [];
 
     let insertNewTimeSlotFunction = function(event) {
         let insertTimeslotButton = event.target;
@@ -447,10 +447,11 @@ table#schedule-table {
             if(newTimeSlot.isOngoing()) newTimeSlot.element.style.backgroundColor = 'orange';
             newTimeSlot.element.style.width = hours * timeslotHourWidth + 'px';
             newTimeSlot.element.style.left = newTimeSlot.startIndex * timeslotHourWidth + firstTimeSlotLeftPadding + 'px';
+            newTimeSlot.updateVerticalPosition();
 
-            var verticalTimeSlotPos = currentTimeSlot.getBoundingClientRect().y - currentTimeSlot.closest('td').getBoundingClientRect().y;
+            // var verticalTimeSlotPos = currentTimeSlot.getBoundingClientRect().y - currentTimeSlot.closest('td').getBoundingClientRect().y;
+            // newTimeSlot.element.style.top = Math.floor(verticalTimeSlotPos) + 'px';
             
-            newTimeSlot.element.style.top = Math.floor(verticalTimeSlotPos) + 'px';
             currentTimeSlot.closest('tr').querySelectorAll('td')[2 + newTimeSlot.workDayIndex].appendChild(newTimeSlot.element);
             insertTimeslotButton.disabled = true;
         } else {
@@ -568,7 +569,7 @@ table#schedule-table {
                 //dragged.style.position = '';
                 dragged.style.zIndex = '';
                 dragged.style.left = draggedTimeslot.startIndex * timeslotHourWidth + firstTimeSlotLeftPadding + 'px';
-
+                draggedTimeslot.updateVerticalPosition();
                 //dragged.style.top = '';
                 dragged.style.opacity = '';
                 dragged = null;
