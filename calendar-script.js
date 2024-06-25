@@ -1,4 +1,102 @@
-const timeslotHourWidth = 14;
+
+let addNewTimeSlotFunction = function(event) {
+    const addTimeslotButton = event.target;
+    const currentCell = addTimeslotButton.closest('td');
+    const newtimeslotController = document.createElement('div');
+    newtimeslotController.className = 'timeslots-controls';
+
+    const timeslotInput = document.createElement('input');
+    timeslotInput.type = 'number';
+    timeslotInput.min = '1';
+    timeslotInput.max = hoursPerDay;
+
+    newtimeslotController.appendChild(timeslotInput);
+
+    const insertTimeslotButton = document.createElement('button');
+    insertTimeslotButton.innerText = '✓';
+    insertTimeslotButton.className = 'insert-timeslot';
+    insertTimeslotButton.onclick = insertNewTimeSlotFunction;
+
+    newtimeslotController.appendChild(insertTimeslotButton);
+
+    const newRemoveTimeslotButton = document.createElement('button');
+    newRemoveTimeslotButton.innerText = '✕';
+    newRemoveTimeslotButton.className = 'remove-timeslot';
+
+    newRemoveTimeslotButton.onclick = removetimeslotControllerFunction;
+    newtimeslotController.appendChild(newRemoveTimeslotButton);
+
+    currentCell.closest('tr').querySelectorAll('td')[1].appendChild(newtimeslotController);
+};
+
+var allTimeslots = [];
+
+let insertNewTimeSlotFunction = function(event) {
+    let insertTimeslotButton = event.target;
+    let timeslotController = insertTimeslotButton.closest('.timeslots-controls');
+    let timeslotInput = timeslotController.querySelector('input');
+    let hours = parseInt(timeslotInput.value, 10);
+
+    let workdayIndex = timeslotController.getAttribute('data-workday-index');
+    let startIndex = timeslotController.getAttribute('data-start-index');
+
+    var newTimeSlot = new Timeslot(hours, workdayIndex, startIndex, timeslotController);
+
+    timeslotController.setAttribute('linked-timeslot', newTimeSlot.element.id);
+
+    newTimeSlot.parentRow = timeslotController.closest('tr');
+
+    let workday = workdays[0];
+
+    if(workdayIndex && workdayIndex != -1){
+        // Find an available workday
+        workday = workdays[workdayIndex];
+    }else{
+        // Find an available workday
+        workday = workdays.find(day => day.addTimeslot(newTimeSlot));
+    }
+
+    if (workday) {
+        allTimeslots[newTimeSlot.element.id] = newTimeSlot;
+        setupTimeslotEvents(newTimeSlot.element);
+        newTimeSlot.workdayIndex = workdays.indexOf(workday);
+        if(newTimeSlot.isOngoing()) newTimeSlot.element.style.backgroundColor = 'orange';
+        newTimeSlot.element.style.width = hours * timeslotHourWidth + 'px';
+        newTimeSlot.element.style.left = newTimeSlot.startIndex * timeslotHourWidth + firstTimeSlotLeftPadding + 'px';
+        newTimeSlot.updateVerticalPosition();
+
+        // var verticalTimeSlotPos = timeslotController.getBoundingClientRect().y - timeslotController.closest('td').getBoundingClientRect().y;
+        // newTimeSlot.element.style.top = Math.floor(verticalTimeSlotPos) + 'px';
+        
+        timeslotController.closest('tr').querySelectorAll('td')[2 + newTimeSlot.workdayIndex].appendChild(newTimeSlot.element);
+        insertTimeslotButton.disabled = true;
+    } else {
+        alert('No available time slots for this duration.');
+    }
+};
+
+let removetimeslotControllerFunction = function(event) {
+    let removeTimeslotButton = event.target;
+    let parentCell = removeTimeslotButton.closest('td');
+    let removedtimeslotController = removeTimeslotButton.closest('.timeslots-controls');
+    if (parentCell.childElementCount > 0) {
+        let linkedTimeslotID = removedtimeslotController.getAttribute('linked-timeslot');
+
+        parentCell.removeChild(removedtimeslotController);
+
+        let removedTimeslot = allTimeslots[linkedTimeslotID];
+        // remove this timeslot from the old working day
+        let oldWorkingDay = workdays[removedTimeslot.workdayIndex];
+        oldWorkingDay.removeTimeslot(removedTimeslot);
+
+        // let linkedTimeslot = document.getElementById(linkedTimeslotID);
+        // linkedTimeslot.parentElement.removeChild(removedTimeslot.element);
+        removedTimeslot.element.remove();
+    }
+};
+
+
+    const timeslotHourWidth = 14;
     const firstTimeSlotLeftPadding = 7;
     const hoursPerDay  = 12;
     const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -11,10 +109,10 @@ const timeslotHourWidth = 14;
     // Timeslot and Workday Classes
     class Timeslot {
         //constructor(hours, element) {
-        constructor(hours, workDayIndex=-1, startIndex = 0, controllerElement){
+        constructor(hours, workdayIndex=-1, startIndex = 0, controllerElement){
             this.hours = hours;
             // this.element = element;
-            this.workDayIndex = workDayIndex;
+            this.workdayIndex = workdayIndex;
             this.element = document.createElement('div');
             this.element.className = 'timeslot';
             this.element.id = generateUniqueId('timeslot');
@@ -29,8 +127,8 @@ const timeslotHourWidth = 14;
             console.log("verticalTimeSlotPos:"+verticalTimeSlotPos);
         }
         isOngoing(){
-            if(this.workDayIndex == -1) return false;
-            let beginDate = new Date(workdays[this.workDayIndex].date);
+            if(this.workdayIndex == -1) return false;
+            let beginDate = new Date(workdays[this.workdayIndex].date);
 
             let beginTime = beginDate.setHours(beginDate.getHours() + (8 + this.startIndex))
             let endTime = beginDate.setHours(beginDate.getHours() + (8 + this.startIndex + this.hours))
@@ -74,7 +172,7 @@ const timeslotHourWidth = 14;
             }
 
                 
-            timeslot.workDayIndex = workdays.indexOf(this);
+            timeslot.workdayIndex = workdays.indexOf(this);
             timeslot.startIndex = this.freeHoursIndex;
             this.timeslots.push(timeslot);
 
@@ -104,49 +202,11 @@ const timeslotHourWidth = 14;
         }
     }
 
+
+
     // allow assigning timeslots to the past
     const configAllowPastAssign = true;
     const workdays = getCurrentWeekDates().map(dateString => new Workday(new Date(dateString)));
-
-    const timeslotPerClient = {
-        "A.L.C.I": [
-            {
-                'hours': 4,
-                'workDayIndex': 1,
-                'startIndex': 3,
-            },
-            {
-                'hours': 2,
-                'workDayIndex': 4,
-                'startIndex': 1,
-            },
-            {
-                'hours': 2,
-                'workDayIndex': 5,
-                'startIndex': 7,
-            },
-        ],
-        "GLG": [
-            {
-                'hours': 6,
-                'workDayIndex': 2,
-                'startIndex': 4,
-            },
-            {
-                'hours': 3,
-                'workDayIndex': 3,
-                'startIndex': 0,
-            },
-        ]
-    };    
-
-
-    for(const clientName of timeslotPerClient){
-        for(let timeslot of timeslotPerClient[clientName]){
-            addRow(clientName);
-            //new Timeslot(timeslot.hours, timeslot.workDayIndex);
-        }
-    }
 
 
     function getCurrentWeekDates() {
@@ -217,7 +277,7 @@ const timeslotHourWidth = 14;
         tableHead.appendChild(headerRowStatic);
     }
 
-    function addRow(clientName = '') {
+    function addRow(clientName = '', clientTimeslots = []) {
         const table = document.getElementById('schedule-table').getElementsByTagName('tbody')[0];
         const newRow = table.insertRow();
 
@@ -245,7 +305,7 @@ const timeslotHourWidth = 14;
         for (let i = 0; i < workdays.length; i++) {
             const weekdayCell = newRow.insertCell(i + 2);
             weekdayCell.className = 'day-date';
-            weekdayCell.setAttribute('data-day-index',i);
+            weekdayCell.setAttribute('data-workday-index',i);
             setupCellEvents(weekdayCell);
 
             // Add the current time marker if it's the current day
@@ -259,14 +319,14 @@ const timeslotHourWidth = 14;
         }
 
 
-        if(clientTimeslots.length == 0) clientTimeslots = [{'hours': 0, 'workDayIndex': 0, 'startIndex': 0}];
+        if(clientTimeslots.length == 0) clientTimeslots = [{'hours': 0, 'workdayIndex': 0, 'startIndex': 0}];
 
         for(let timeslot of clientTimeslots){
             // Add new timeslot control
             const timeslotController = document.createElement('div');
             timeslotController.className = 'timeslots-controls';
             timeslotController.setAttribute('data-hours', timeslot.hours);
-            timeslotController.setAttribute('data-work-day', timeslot.workDayIndex);
+            timeslotController.setAttribute('data-workday-index', timeslot.workdayIndex);
             timeslotController.setAttribute('data-start-index', timeslot.startIndex);
             timeslotsCell.appendChild(timeslotController);
 
@@ -296,100 +356,6 @@ const timeslotHourWidth = 14;
         }
 
     }
-
-    let addNewTimeSlotFunction = function(event) {
-        const addTimeslotButton = event.target;
-        const currentCell = addTimeslotButton.closest('td');
-        const newtimeslotController = document.createElement('div');
-        newtimeslotController.className = 'timeslots-controls';
-
-        const timeslotInput = document.createElement('input');
-        timeslotInput.type = 'number';
-        timeslotInput.min = '1';
-        timeslotInput.max = hoursPerDay;
-
-        newtimeslotController.appendChild(timeslotInput);
-
-        const insertTimeslotButton = document.createElement('button');
-        insertTimeslotButton.innerText = '✓';
-        insertTimeslotButton.className = 'insert-timeslot';
-        insertTimeslotButton.onclick = insertNewTimeSlotFunction;
-
-        newtimeslotController.appendChild(insertTimeslotButton);
-
-        const newRemoveTimeslotButton = document.createElement('button');
-        newRemoveTimeslotButton.innerText = '✕';
-        newRemoveTimeslotButton.className = 'remove-timeslot';
-
-        newRemoveTimeslotButton.onclick = removetimeslotControllerFunction;
-        newtimeslotController.appendChild(newRemoveTimeslotButton);
-
-        currentCell.closest('tr').querySelectorAll('td')[1].appendChild(newtimeslotController);
-    };
-
-    var allTimeslots = [];
-
-    let insertNewTimeSlotFunction = function(event) {
-        let insertTimeslotButton = event.target;
-        let timeslotController = insertTimeslotButton.closest('.timeslots-controls');
-        let timeslotInput = timeslotController.querySelector('input');
-        let hours = parseInt(timeslotInput.value, 10);
-
-        let workDayIndex = timeslotController.getAttribute('data-day-index');
-        let startIndex = timeslotController.getAttribute('data-start-index');
-
-        var newTimeSlot = new Timeslot(hours, workDayIndex, startIndex, timeslotController);
-
-        timeslotController.setAttribute('linked-timeslot', newTimeSlot.element.id);
-
-        newTimeSlot.parentRow = timeslotController.closest('tr');
-
-        if(workDayIndex && workDayIndex != -1){
-            // Find an available workday
-            const workday = workdays[workDayIndex];
-        }else{
-            // Find an available workday
-            const workday = workdays.find(day => day.addTimeslot(newTimeSlot));
-        }
-
-        if (workday) {
-            allTimeslots[newTimeSlot.element.id] = newTimeSlot;
-            setupTimeslotEvents(newTimeSlot.element);
-            newTimeSlot.workDayIndex = workdays.indexOf(workday);
-            if(newTimeSlot.isOngoing()) newTimeSlot.element.style.backgroundColor = 'orange';
-            newTimeSlot.element.style.width = hours * timeslotHourWidth + 'px';
-            newTimeSlot.element.style.left = newTimeSlot.startIndex * timeslotHourWidth + firstTimeSlotLeftPadding + 'px';
-            newTimeSlot.updateVerticalPosition();
-
-            // var verticalTimeSlotPos = timeslotController.getBoundingClientRect().y - timeslotController.closest('td').getBoundingClientRect().y;
-            // newTimeSlot.element.style.top = Math.floor(verticalTimeSlotPos) + 'px';
-            
-            timeslotController.closest('tr').querySelectorAll('td')[2 + newTimeSlot.workDayIndex].appendChild(newTimeSlot.element);
-            insertTimeslotButton.disabled = true;
-        } else {
-            alert('No available time slots for this duration.');
-        }
-    };
-
-    let removetimeslotControllerFunction = function(event) {
-        let removeTimeslotButton = event.target;
-        let parentCell = removeTimeslotButton.closest('td');
-        let removedtimeslotController = removeTimeslotButton.closest('.timeslots-controls');
-        if (parentCell.childElementCount > 0) {
-            let linkedTimeslotID = removedtimeslotController.getAttribute('linked-timeslot');
-
-            parentCell.removeChild(removedtimeslotController);
-
-            let removedTimeslot = allTimeslots[linkedTimeslotID];
-            // remove this timeslot from the old working day
-            let oldWorkingDay = workdays[removedTimeslot.workDayIndex];
-            oldWorkingDay.removeTimeslot(removedTimeslot);
-
-            // let linkedTimeslot = document.getElementById(linkedTimeslotID);
-            // linkedTimeslot.parentElement.removeChild(removedTimeslot.element);
-            removedTimeslot.element.remove();
-        }
-    };
 
     // Initialize the table headers
     createTableHeader();
@@ -449,12 +415,12 @@ const timeslotHourWidth = 14;
                     console.log('Width Percentage = '+relativeHourShift / dropTargetRect.width);
                     console.log('Target Hour = '+shiftHourIndex);
 
-                    let workDayIndex = dropTarget.getAttribute('data-day-index');
-                    if(workDayIndex != undefined && workdays[workDayIndex]){
+                    let workdayIndex = dropTarget.getAttribute('data-workday-index');
+                    if(workdayIndex != undefined && workdays[workdayIndex]){
                         
-                        let oldWorkingDay = workdays[draggedTimeslot.workDayIndex];
+                        let oldWorkingDay = workdays[draggedTimeslot.workdayIndex];
 
-                        if(workdays[workDayIndex].addTimeslot(draggedTimeslot, shiftHourIndex)){
+                        if(workdays[workdayIndex].addTimeslot(draggedTimeslot, shiftHourIndex)){
                             // move this timeslot to the target working day
                             dropTarget.appendChild(dragged);
 
@@ -462,7 +428,7 @@ const timeslotHourWidth = 14;
                             oldWorkingDay.removeTimeslot(draggedTimeslot);
 
                             // change the index of working day
-                            draggedTimeslot.workDayIndex = workDayIndex;
+                            draggedTimeslot.workdayIndex = workdayIndex;
 
                             droppedSuccesfully = true;
                         }else{
@@ -473,7 +439,7 @@ const timeslotHourWidth = 14;
 
                 if(!dropTarget || !droppedSuccesfully){
                     // return it back to the original cell
-                    let oldWorkingDayCell = draggedTimeslot.parentRow.querySelector('td.day-date[data-day-index="'+draggedTimeslot.workDayIndex+'"]');
+                    let oldWorkingDayCell = draggedTimeslot.parentRow.querySelector('td.day-date[data-day-index="'+draggedTimeslot.workdayIndex+'"]');
                     oldWorkingDayCell.appendChild(dragged);
                 }
 
@@ -517,4 +483,60 @@ const timeslotHourWidth = 14;
     }
 
     // Initial row
-    addRow();
+//    addRow();
+
+
+
+const timeslotPerClient = {
+    "A.L.C.I": [
+        {
+            'hours': 4,
+            'workdayIndex': 1,
+            'startIndex': 3,
+        },
+        {
+            'hours': 2,
+            'workdayIndex': 4,
+            'startIndex': 1,
+        },
+        {
+            'hours': 2,
+            'workdayIndex': 5,
+            'startIndex': 7,
+        },
+    ],
+    "GLG": [
+        {
+            'hours': 6,
+            'workdayIndex': 2,
+            'startIndex': 4,
+        },
+        {
+            'hours': 3,
+            'workdayIndex': 3,
+            'startIndex': 0,
+        },
+    ],
+
+    "Carnibarone": [
+        {
+            'hours': 6,
+            'workdayIndex': 2,
+            'startIndex': 4,
+        },
+        {
+            'hours': 3,
+            'workdayIndex': 3,
+            'startIndex': 0,
+        },
+    ],
+    
+};    
+
+
+for(const clientName in timeslotPerClient){
+    //for(let timeslot of timeslotPerClient[clientName]){
+        addRow(clientName, timeslotPerClient[clientName]);
+        //new Timeslot(timeslot.hours, timeslot.workdayIndex);
+    //}
+}
