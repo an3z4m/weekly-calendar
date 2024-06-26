@@ -8,7 +8,7 @@ var workdays = [];
 
 
 const timeslotHourWidth = 14;
-const firstTimeslotLeftPadding = 7;
+const firstTimeslotLeftPadding = 14;
 const hoursPerDay  = 12;
 const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const week_workingdays = 7;
@@ -167,7 +167,8 @@ function setupTimeslotEvents(timeslot) {
                         // change the index of working day
                         draggedTimeslot.setWorkdayIndex(workdayIndex);
                         draggedTimeslot.setStartIndex(shiftHourIndex);
-                        if(draggedTimeslot.isOngoing()) draggedTimeslot.element.style.backgroundColor = 'orange';
+
+                        draggedTimeslot.element.style.backgroundColor = draggedTimeslot.isOngoing() ? 'orange' : '';
 
                         droppedSuccesfully = true;
                     }else{

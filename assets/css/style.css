@@ -5,23 +5,17 @@ main.content,
 overflow: scroll;
 }
 
-#calendar-table table, #calendar-table th, #calendar-table td {
-border: 1px solid black;
-}
+#calendar-table table, #calendar-table th, #calendar-table td {border: 1px solid black;}
 
 #calendar-table {
 width: 100%;
 }
 
 #calendar-table th{
-padding: 0px 0px;
+padding: 0px 7px;
 }
 
-#calendar-table td {
-padding: 2px 2px;
-text-align: center;
-height: 24px;
-}
+#calendar-table td {padding: 0px 0px;text-align: center;height: 24px;}
 
 #calendar-table tr th:first-child, 
 #calendar-table tr td:first-child {
@@ -34,19 +28,7 @@ width: 110px;
 margin: 2px;
 }
 
-
-#calendar-table td.day-date{
-position: relative;
-}
-
-.timeslot{
-position: absolute;
-background: #1b3e6f;
-top: 0px;
-/* margin-top:2px; */
-/* height: 22px; */
-height: 20px;
-}
+.timeslot{position: absolute;background: #1b3e6f;top: 0px;/* margin-top:2px; */height: 22px;/* height: 20px; */}
 
 #calendar-table .timeslots-controls {
 display: flex;
@@ -156,4 +138,13 @@ table#schedule-table {
     width: 150px;
     background-color: #1b3e6f;
     color: #fff;
+}
+
+
+#calendar-table td.day-date{
+    position: relative;
+    background-color: #f37f0d14;
+    opacity: 0.8;
+    background-image: linear-gradient(#f37f0d 1px, transparent 1px), linear-gradient(to right, #f37f0d 1px, #f37f0d1c 1px);
+    background-size: 14px 23px;
 }
