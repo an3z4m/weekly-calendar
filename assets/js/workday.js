@@ -1,6 +1,5 @@
 // Workday Class
 
-
 class Workday {
     constructor(date) {
         this.date = date;
@@ -10,7 +9,7 @@ class Workday {
     }
 
     addTimeslot(timeslot, shiftHourIndex = 0) {
-        const requiredHours = timeslot.hours;
+        const requiredHours = timeslot.getHours();
         if(!configCheckAvailability){
             this.freeHoursIndex = shiftHourIndex;
         }else{
@@ -30,10 +29,10 @@ class Workday {
                 this.availableHours[this.freeHoursIndex + i] = false;
             }
         }
-
             
-        timeslot.workdayIndex = workdays.indexOf(this);
-        timeslot.startIndex = this.freeHoursIndex;
+//        timeslot.setWorkdayIndex(workdays.indexOf(this));
+//        timeslot.setStartIndex(this.freeHoursIndex);
+
         this.timeslots.push(timeslot);
 
         return true;
@@ -42,8 +41,8 @@ class Workday {
     removeTimeslot(timeslot) {
         const timeslotIndex = this.timeslots.indexOf(timeslot);
         if (timeslotIndex !== -1) {
-            for (let i = 0; i < timeslot.hours; i++) {
-                this.availableHours[timeslot.startIndex + i] = true;
+            for (let i = 0; i < timeslot.getHours(); i++) {
+                this.availableHours[timeslot.getStartIndex() + i] = true;
             }
             this.timeslots.splice(timeslotIndex, 1);
             // update the position of timeslots after removal of a specific timeslot

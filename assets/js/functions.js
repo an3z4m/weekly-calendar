@@ -5,6 +5,12 @@ function generateUniqueId(prefix = 'id') {
 let insertNewTimeslotFunction = function(event) {
     let insertTimeslotButton = event.target;
     let timeslotController = insertTimeslotButton.closest('.timeslots-controls');
+
+    let timeslotID = timeslotController.getAttribute('linked-timeslot');
+
+    let newTimeslot = allTimeslots[timeslotID];
+    
+ 
     let timeslotInput = timeslotController.querySelector('input');
     let hours = parseInt(timeslotInput.value, 10);
 
@@ -13,14 +19,11 @@ let insertNewTimeslotFunction = function(event) {
         return;
     }
 
-    let workdayIndex = timeslotController.getAttribute('data-workday-index');
-    let startIndex = timeslotController.getAttribute('data-start-index');
+    newTimeslot.setHours(hours);
 
-    var newTimeslot = new Timeslot(hours, workdayIndex, startIndex, timeslotController);
-
-    timeslotController.setAttribute('linked-timeslot', newTimeslot.element.id);
-
-    newTimeslot.parentRow = timeslotController.closest('tr');
+    //let workdayIndex = timeslotController.getAttribute('data-workday-index');
+    let workdayIndex = newTimeslot.getWorkdayIndex();
+    // let startIndex = timeslotController.getAttribute('data-start-index');
 
     let workday = workdays[0];
 
@@ -33,18 +36,15 @@ let insertNewTimeslotFunction = function(event) {
     }
 
     if (workday) {
-        allTimeslots[newTimeslot.element.id] = newTimeslot;
         setupTimeslotEvents(newTimeslot.element);
-        newTimeslot.workdayIndex = workdays.indexOf(workday);
-        if(newTimeslot.isOngoing()) newTimeslot.element.style.backgroundColor = 'orange';
-        newTimeslot.element.style.width = hours * timeslotHourWidth + 'px';
-        newTimeslot.element.style.left = newTimeslot.startIndex * timeslotHourWidth + firstTimeslotLeftPadding + 'px';
-        newTimeslot.updateVerticalPosition();
+        newTimeslot.setWorkdayIndex(workdays.indexOf(workday));
 
+        if(newTimeslot.isOngoing()) newTimeslot.element.style.backgroundColor = 'orange';
+        newTimeslot.updateVerticalPosition();
+        newTimeslot.element.style.display = '';
         // var verticalTimeslotPos = timeslotController.getBoundingClientRect().y - timeslotController.closest('td').getBoundingClientRect().y;
         // newTimeslot.element.style.top = Math.floor(verticalTimeslotPos) + 'px';
         
-        timeslotController.closest('tr').querySelectorAll('td')[2 + newTimeslot.workdayIndex].appendChild(newTimeslot.element);
         insertTimeslotButton.disabled = true;
     } else {
         alert('No available time slots for this duration.');
@@ -62,11 +62,11 @@ let removetimeslotControllerFunction = function(event) {
 
         let removedTimeslot = allTimeslots[linkedTimeslotID];
         // remove this timeslot from the old working day
-        let oldWorkingDay = workdays[removedTimeslot.workdayIndex];
+        let oldWorkingDay = workdays[removedTimeslot.getWorkdayIndex()];
         oldWorkingDay.removeTimeslot(removedTimeslot);
 
         // let linkedTimeslot = document.getElementById(linkedTimeslotID);
         // linkedTimeslot.parentElement.removeChild(removedTimeslot.element);
-        removedTimeslot.element.remove();
+        removedTimeslot.removeMe();
     }
 };

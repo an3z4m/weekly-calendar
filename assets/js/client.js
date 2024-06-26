@@ -1,6 +1,5 @@
 
 class Client{
-
     constructor(clientName = '', timeslots = []){
         this.clientName = clientName;
         this.timeslots = [];
@@ -11,14 +10,18 @@ class Client{
         allClients.push(this);
     }
 
+    getName(){
+        return this.clientNameInput.value;
+    }
+
     getTimeslotsData(){
         let data = [];
         for(let timeslot of this.timeslots) 
             data.push(
             {
-                'hours': timeslot.hours,
-                'workdayIndex': timeslot.workdayIndex,
-                'startIndex': timeslot.startIndex,
+                'hours': timeslot.getHours(),
+                'workdayIndex': timeslot.getWorkdayIndex(),
+                'startIndex': timeslot.getStartIndex(),
             }
         );
         return data;
@@ -28,20 +31,20 @@ class Client{
         const newRow = calendarTable.insertRow();
 
         // Client Name Cell
-        const clientNameCell = newRow.insertCell(0);
+        this.clientNameCell = newRow.insertCell(0);
 
         // add client name input
-        const clientNameInput = document.createElement('input');
-        clientNameInput.value = this.clientName;
-        clientNameInput.type = 'text';
-        clientNameCell.appendChild(clientNameInput);
+        this.clientNameInput = document.createElement('input');
+        this.clientNameInput.value = this.clientName;
+        this.clientNameInput.type = 'text';
+        this.clientNameCell.appendChild(this.clientNameInput);
 
         // add new timeslot controller button
         const addTimeslotButton = document.createElement('button');
         addTimeslotButton.innerText = '+';
         addTimeslotButton.className = 'add-timeslot';
         addTimeslotButton.addEventListener('click', () => this.addNewTimeslotController());
-        clientNameCell.appendChild(addTimeslotButton);
+        this.clientNameCell.appendChild(addTimeslotButton);
 
         // Timeslots Cell
         this.timeslotsCell = newRow.insertCell(1);
@@ -85,39 +88,12 @@ class Client{
         this.timeslotsCell.appendChild(timeslotController);
 
         let newTimeslot = null;
-        if(timeslot == null) {
+        if(timeslot == null)  timeslot = {'hours': 0, 'workdayIndex': 0, 'startIndex': 0};
             // create new empty timeslot
-            newTimeslot = new Timeslot();
-        }else{
-            newTimeslot = new Timeslot(timeslot.hours, timeslot.workdayIndex, timeslot.startIndex);
-        }
-
-        newTimeslot.setController(timeslotController);
+        newTimeslot = new Timeslot(this, timeslot.hours, timeslot.workdayIndex, timeslot.startIndex, timeslotController);
         this.timeslots.push(newTimeslot);
 
-        // Add timeslot hours input
-        const timeslotInput = document.createElement('input');
-        timeslotInput.value = newTimeslot.hours;
-        timeslotInput.type = 'number';
-        timeslotInput.min = '0';
-        timeslotInput.max = hoursPerDay;
-        timeslotController.appendChild(timeslotInput);
-
-        // Add timeslot insert button
-        const insertTimeslotButton = document.createElement('button');
-        insertTimeslotButton.innerText = '✓';
-        insertTimeslotButton.className = 'insert-timeslot';
-        insertTimeslotButton.onclick = insertNewTimeslotFunction;
-        timeslotController.appendChild(insertTimeslotButton);
-
-        // Add timeslot removal button
-        const removeTimeslotButton = document.createElement('button');
-        removeTimeslotButton.innerText = '✕';
-        removeTimeslotButton.className = 'remove-timeslot';
-        removeTimeslotButton.onclick = removetimeslotControllerFunction;
-        timeslotController.appendChild(removeTimeslotButton);
-
-        if(insertTimeslot) insertTimeslotButton.click();
+        if(insertTimeslot) newTimeslot.insertTimeslot();
     };
 
 }

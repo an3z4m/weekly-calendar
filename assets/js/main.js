@@ -111,6 +111,7 @@ function setupTimeslotEvents(timeslot) {
         moveAt(event.pageX, event.pageY);
 
         function moveAt(pageX, pageY) {
+            if(dragged == null) return;
             dragged.style.left = pageX - dragged.offsetWidth / 2 + 'px';
             dragged.style.top = pageY - dragged.offsetHeight / 2 + 'px';
         }
@@ -133,7 +134,7 @@ function setupTimeslotEvents(timeslot) {
 
             let droppedSuccesfully = false;
 
-            if(dropTarget.closest('tr') != draggedTimeslot.parentRow){
+            if(dropTarget.closest('tr') != draggedTimeslot.controllerElement.closest('tr')){
                 alert('you are not allowed to move the timeslot to another client');
                 dropTarget = null;
             }
@@ -154,7 +155,7 @@ function setupTimeslotEvents(timeslot) {
                 let workdayIndex = dropTarget.getAttribute('data-workday-index');
                 if(workdayIndex != undefined && workdays[workdayIndex]){
                     
-                    let oldWorkingDay = workdays[draggedTimeslot.workdayIndex];
+                    let oldWorkingDay = workdays[draggedTimeslot.getWorkdayIndex()];
 
                     if(workdays[workdayIndex].addTimeslot(draggedTimeslot, shiftHourIndex)){
                         // move this timeslot to the target working day
@@ -164,7 +165,9 @@ function setupTimeslotEvents(timeslot) {
                         oldWorkingDay.removeTimeslot(draggedTimeslot);
 
                         // change the index of working day
-                        draggedTimeslot.workdayIndex = workdayIndex;
+                        draggedTimeslot.setWorkdayIndex(workdayIndex);
+                        draggedTimeslot.setStartIndex(shiftHourIndex);
+                        if(draggedTimeslot.isOngoing()) draggedTimeslot.element.style.backgroundColor = 'orange';
 
                         droppedSuccesfully = true;
                     }else{
@@ -175,14 +178,13 @@ function setupTimeslotEvents(timeslot) {
 
             if(!dropTarget || !droppedSuccesfully){
                 // return it back to the original cell
-                let oldWorkingDayCell = draggedTimeslot.parentRow.querySelector('td.day-date[data-day-index="'+draggedTimeslot.workdayIndex+'"]');
+                let oldWorkingDayCell = draggedTimeslot.controllerElement.closest('tr').querySelector('td.day-date[data-day-index="'+draggedTimeslot.getWorkdayIndex()+'"]');
                 oldWorkingDayCell.appendChild(dragged);
             }
 
             //if(droppedSuccesfully) 
             //dragged.style.position = '';
             dragged.style.zIndex = '';
-            dragged.style.left = draggedTimeslot.startIndex * timeslotHourWidth + firstTimeslotLeftPadding + 'px';
             draggedTimeslot.updateVerticalPosition();
             //dragged.style.top = '';
             dragged.style.opacity = '';
@@ -223,13 +225,13 @@ workdays = getCurrentWeekDates().map(dateString => new Workday(new Date(dateStri
 function saveCalendar(){
     let jsonData = {};
     for(let client of allClients){
-        jsonData[client.clientName] = client.getTimeslotsData();
+        jsonData[client.getName()] = client.getTimeslotsData();
     }
     return jsonData;
 }
 
 function loadCalendar(){
-    for(const clientName in timeslotPerClient){
-        new Client(clientName, timeslotPerClient[clientName])
+    for(const clientName in loadedCalendar){
+        new Client(clientName, loadedCalendar[clientName])
     }
 }
