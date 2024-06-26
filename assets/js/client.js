@@ -61,7 +61,9 @@ class Client{
             if (currentDay - 1 === i && currentHour >= 8 && currentHour <= 20) {
                 const marker = document.createElement('div');
                 marker.className = 'current-time-marker';
-                marker.style.left = ((currentHour - 8) + 0.5) * (100 / hoursPerDay) + '%';
+                
+                marker.style.left = ((currentHour - 8)) * timeslotHourWidth + firstTimeslotLeftPadding;
+//                marker.style.left = ((currentHour - 8) + 0.5) * (100 / hoursPerDay) + '%';
                 marker.style.height = '100%';
                 weekdayCell.appendChild(marker);
             }

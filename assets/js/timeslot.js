@@ -73,6 +73,7 @@ class Timeslot {
     }
 
     setStartIndex(startIndex){
+        startIndex = Math.max(0,startIndex);
         this.setHours(Math.min(this.getHours() + startIndex, hoursPerDay) - startIndex);
         startIndex = parseInt(startIndex);
         this.controllerElement.setAttribute('data-start-index', startIndex); 
@@ -102,7 +103,7 @@ class Timeslot {
 
     updateVerticalPosition(){
         var verticalTimeslotPos = this.controllerElement.getBoundingClientRect().y - this.controllerElement.closest('td').getBoundingClientRect().y;
-        this.element.style.top = Math.floor(verticalTimeslotPos) + 'px'; // -2
+        this.element.style.top = Math.floor(verticalTimeslotPos) - 1 + 'px'; // -2
         console.log("verticalTimeslotPos:"+verticalTimeslotPos);
     }
 
@@ -110,8 +111,8 @@ class Timeslot {
         if(this.getWorkdayIndex() == -1) return false;
         let beginDate = new Date(workdays[this.getWorkdayIndex()].date);
 
-        let beginTime = beginDate.setHours(beginDate.getHours() + (8 + this.getStartIndex()))
-        let endTime = beginDate.setHours(beginDate.getHours() + (8 + this.getStartIndex() + this.getHours()))
+        let beginTime = beginDate.setHours(beginDate.getHours() + (8 + this.getStartIndex()));
+        let endTime = beginDate.setHours(beginDate.getHours() + this.getHours());
             
         let currentDate = new Date();
         return (beginTime < currentDate && currentDate < endTime);

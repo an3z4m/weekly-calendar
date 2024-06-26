@@ -63,6 +63,7 @@ function update_calendar_via_ajax(calendarData){
 
 
 <script>
+    <?php include 'assets/js/config.js'; ?>
     <?php include 'assets/js/functions.js'; ?>
     <?php include 'assets/js/client.js'; ?>
     <?php include 'assets/js/timeslot.js'; ?>

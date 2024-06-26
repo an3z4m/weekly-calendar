@@ -1,30 +1,5 @@
 
 
-var allTimeslots = [];
-
-var allClients = [];
-
-var workdays = [];
-
-
-const timeslotHourWidth = 14;
-const firstTimeslotLeftPadding = 14;
-const hoursPerDay  = 12;
-const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-const week_workingdays = 7;
-
-const todayDate = new Date();
-const currentDay = todayDate.getDay();
-const currentHour = todayDate.getHours();
-
-
-const configCheckAvailability = false;
-
-
-// allow assigning timeslots to the past
-const configAllowPastAssign = true;
-
-
 function getCurrentWeekDates() {
     const dates = [];
     const firstDay = todayDate.getDate() - todayDate.getDay() + 1; // Adjust for Monday week start
@@ -61,7 +36,7 @@ function createTableHeader() {
             const horizontalAxis = document.createElement('div');
             horizontalAxis.className = 'horizontal-axis';
 
-            for (let j = 8; j <= 20; j++) {
+            for (let j = startingHour; j <= endingHour; j++) {
                 const axisLabel = document.createElement('div');
                 axisLabel.className = 'axis-label';
                 axisLabel.innerText = j;
@@ -79,7 +54,8 @@ function createTableHeader() {
             if (currentDay - 1 === index - 2 && currentHour >= 8 && currentHour <= 20) {
                 const marker = document.createElement('div');
                 marker.className = 'current-time-marker';
-                marker.style.left = ((currentHour - 8) + 0.5) * (100 / hoursPerDay) + '%';
+                marker.style.left = ((currentHour - 8)) * timeslotHourWidth + firstTimeslotLeftPadding / 2;
+//                marker.style.left = ((currentHour - 8) + 0.5) * (100 / hoursPerDay) + '%';
                 marker.style.height = '100%';
                 hourRuler.appendChild(marker);
             }
