@@ -62,7 +62,7 @@ class Client{
                 const marker = document.createElement('div');
                 marker.className = 'current-time-marker';
                 
-                marker.style.left = ((currentHour - 8)) * timeslotHourWidth + firstTimeslotLeftPadding;
+                marker.style.left = ((currentHour - 8)) * timeslotHourWidth + firstTimeslotLeftPadding + 'px';
 //                marker.style.left = ((currentHour - 8) + 0.5) * (100 / hoursPerDay) + '%';
                 marker.style.height = '100%';
                 weekdayCell.appendChild(marker);

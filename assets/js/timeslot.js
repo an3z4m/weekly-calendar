@@ -94,7 +94,7 @@ class Timeslot {
         this.parentClient.timeslots.splice(this.parentClient.timeslots.indexOf(this),1);
 
         // remove this timeslot to the global list
-        allTimeslots.splice(allTimeslots.indexOf(element.id),1);
+        allTimeslots.splice(allTimeslots.indexOf(this),1);
     }
 
     refresh(){
