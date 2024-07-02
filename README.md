@@ -13,8 +13,8 @@ You can add rows to the table by clicking the "+" button.
 
 **Files**
 index.php: Main PHP file that includes the HTML structure and JavaScript.
-calendar-style.css: CSS file for styling the calendar.
-calendar-script.js: JavaScript file for adding functionality to the calendar.
+assets/css/style.css: CSS file for styling the calendar.
+assets/js/script.js: JavaScript file for adding functionality to the calendar.
 
 **Contributing**
 Feel free to contribute to this project by submitting pull requests.
