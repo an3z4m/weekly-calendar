@@ -14,7 +14,13 @@
 </div>
 
 
-<? $user_id = get_current_user_id(); ?>
+<?php 
+    if (isset($_GET['user_id']) && current_user_can( 'administrator' ) ){
+        $user_id = $_GET['user_id'];
+    }else{
+        $user_id = get_current_user_id(); 
+    }
+?>
 
 <script>
 

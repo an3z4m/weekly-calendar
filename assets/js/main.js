@@ -143,8 +143,7 @@ function setupTimeslotEvents(timeslot) {
                         // change the index of working day
                         draggedTimeslot.setWorkdayIndex(workdayIndex);
                         draggedTimeslot.setStartIndex(shiftHourIndex);
-
-                        draggedTimeslot.element.style.backgroundColor = draggedTimeslot.isOngoing() ? 'orange' : '';
+                        draggedTimeslot.refresh();
 
                         droppedSuccesfully = true;
                     }else{

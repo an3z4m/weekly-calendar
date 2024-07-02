@@ -38,7 +38,7 @@ let insertNewTimeslotFunction = function(event) {
     if (workday) {
         setupTimeslotEvents(newTimeslot.element);
         newTimeslot.setWorkdayIndex(workdays.indexOf(workday));
-        newTimeslot.element.style.backgroundColor = newTimeslot.isOngoing() ? 'orange' : '';
+        newTimeslot.element.style.backgroundColor = newTimeslot.isOngoing() ? '#f37f0d' : '';
         newTimeslot.updateVerticalPosition();
         newTimeslot.element.style.display = '';
         // var verticalTimeslotPos = timeslotController.getBoundingClientRect().y - timeslotController.closest('td').getBoundingClientRect().y;

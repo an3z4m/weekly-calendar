@@ -23,6 +23,27 @@ class Timeslot {
         allTimeslots[this.element.id] = this;
 
         this.setupTimeslot();
+
+        this.scheduleNotification();
+    }
+
+    scheduleNotification(){
+        let pendingMilliseconds = this.getPendingMilliseconds();
+        if(pendingMilliseconds < 0) return;
+        if (Notification.permission !== 'granted') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') this.scheduleNotification();
+            });
+        } else {
+            if(this.scheduledInterval) clearInterval(this.scheduledInterval);
+            this.scheduledInterval = setInterval(()=>{
+                const notification = new Notification('Reminder', {
+                    body: this.parentClient.clientName + ' has started!',
+                    icon: 'https://easy.langa.tv/wp-content/uploads/2024/06/cropped-easy-langa.png' // Optional icon path
+                });
+            }, pendingMilliseconds); // 2 hours in milliseconds
+            console.log(this.parentClient.clientName + ' will start after '+pendingMilliseconds+' ms');
+        }
     }
 
     setupTimeslot(){
@@ -98,7 +119,9 @@ class Timeslot {
     }
 
     refresh(){
-
+        this.scheduleNotification();
+        this.updateVerticalPosition();
+        this.element.style.backgroundColor = this.isOngoing() ? '#f37f0d' : '';
     }
 
     updateVerticalPosition(){
@@ -117,6 +140,15 @@ class Timeslot {
         let currentDate = new Date();
         return (beginTime < currentDate && currentDate < endTime);
     }
-    
 
+    getPendingMilliseconds(){
+        if(this.getWorkdayIndex()== -1) return false;
+        let beginDate = new Date(workdays[this.getWorkdayIndex()].date);
+
+        let beginTime = beginDate.setHours(beginDate.getHours() + (8 + this.getStartIndex()))
+            
+        let currentDate = new Date();
+        return (beginTime - currentDate);
+    }
+    
 }
